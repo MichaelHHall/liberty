@@ -23,7 +23,7 @@ TOKEN = secrets['BOT_TOKEN']
 
 def define_cogs():
     return {
-        'Info': (commands.text.Text, 'commands.text'),
+        'Text': (commands.text.Text, 'commands.text'),
         'Audio': (commands.audio.Audio, 'commands.audio'),
         'Processor': (responses.process.Processor, 'responses.process'),
     }

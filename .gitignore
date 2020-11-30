@@ -1,3 +1,5 @@
 secrets.yml
+secrets_test.yml
 liberty_env
 *.pyc
+*.swp
