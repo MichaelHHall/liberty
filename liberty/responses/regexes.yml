@@ -1,0 +1,16 @@
+---
+- regex: 'china'
+  text_response:
+    - 'CHINESE COMMUNIST DETECTED'
+    - 'INITIATING DESTRUCTION OF CHINESE COMMUNIST PROPAGANDA'
+  reaction_response:
+    - 'nuke'
+    - 'kaboom'
+    - '💣'
+    - '☢️'
+  audio_response: 'china.mp3'
+- regex: 'america'
+  text_response: 'PATRIOTISM SUBROUTINES ENGAGED'
+  reaction_response: '🇺🇸'
+  audio_response: 'star_spangled_banner.mp3'
+...
