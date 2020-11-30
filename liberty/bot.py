@@ -18,7 +18,14 @@ with open('secrets.yml') as stream:
     except yaml.YAMLError as exc:
         print(exc)
 
-bot = Bot(command_prefix='$')
+
+# Make a new bot class
+class BetterBot( Bot ):
+    async def process_commands(self, message):
+        ctx = await self.get_context(message)
+        await self.invoke(ctx)
+
+bot = BetterBot(command_prefix='$')
 TOKEN = secrets['BOT_TOKEN']
 
 def define_cogs():
