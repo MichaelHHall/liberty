@@ -35,8 +35,3 @@ class Audio(commands.Cog):
     async def list_queue(self, context):
         audio_handler = self._audio_handlers[context.guild.id]
         await context.send(audio_handler.get_queue())
-
-
-    @commands.command(name='G', help = 'continue an unstoppable reaction')
-    async def please(self, context):
-        await context.send('!E')

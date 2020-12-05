@@ -18,7 +18,7 @@ class Text(commands.Cog):
 
     @commands.command(name='N', help = 'Start a chain reaction that cannot be stopped')
     async def gamer(self, context):
-        await context.send('!I')
+        await context.send('-I')
 
 
     @commands.command(name='echo', help = 'echo a comment')
