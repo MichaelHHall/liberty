@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
 
+import asyncio
+
 # A file for defining basic info commands
 class Text(commands.Cog):
     def __init__(self, bot):
@@ -24,3 +26,17 @@ class Text(commands.Cog):
     @commands.command(name='echo', help = 'echo a comment')
     async def echo_message(self, context, *msg):
         await context.send(' '.join(msg))
+
+
+    @commands.command(name='nuke', help='Send a tactical nuke at another member of the server')
+    async def nuke_friend(self, context):
+        # Get all members mentioned in the command
+        targets = context.message.mentions
+        if not targets:
+            await context.send('Please designate a communist scoundrel to target!')
+            return
+
+        for i in range(0,15):
+            for target in targets:
+                await context.send(target.mention)
+                await asyncio.sleep(0.3)
