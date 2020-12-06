@@ -42,7 +42,7 @@ if [[ $IMAGE_REBUILD == true ]]; then
         docker build -t "${CORE_IMAGE_NAME}" "${DIR}/liberty-core-docker"
     fi
     #Export core tag as some kind of env var?
-    docker build -t "${FULL_IMAGE_NAME}" "${DIR}"
+    docker build --build-arg liberty_core_tag=$LIBERTY_CORE_TAG -t "${FULL_IMAGE_NAME}" "${DIR}"
 fi
 
 # If I were smart I would check for dirty git first, since this could build
