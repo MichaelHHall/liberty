@@ -1,8 +1,13 @@
-FROM ubuntu:20.04
+# Core tag comes fom build script
+# Tells which image to use as a base
+ARG liberty_core_tag
+FROM libertycore:$liberty_core_tag
+
 ARG DEBIAN_FRONTEND=noninteractive
+
+# Copy over liberty code into container
 COPY . /liberty
-WORKDIR /liberty
-RUN apt-get update && apt-get install -y python3 python3-dev python3-pip libopus0 ffmpeg
-RUN pip3 install -r requirements.txt
-WORKDIR ./liberty
+
+# Run Liberty Prime
+WORKDIR /liberty/liberty
 CMD python3 ./bot.py
