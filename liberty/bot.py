@@ -25,7 +25,7 @@ class BetterBot( Bot ):
         ctx = await self.get_context(message)
         await self.invoke(ctx)
 
-bot = BetterBot(command_prefix='$')
+bot = BetterBot(command_prefix='$', intents=discord.Intents.all())
 TOKEN = secrets['BOT_TOKEN']
 
 def define_cogs():
