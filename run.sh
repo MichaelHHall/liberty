@@ -26,6 +26,8 @@ if [[ $( git status --porcelain "${DIR}/liberty-core-docker") ]]; then
     # Core dockerfile needs to be rebuilt
     LIBERTY_CORE_TAG=dirty
     CORE_IMAGE_NAME="${LIBERTY_CORE_NAME}:${LIBERTY_CORE_TAG}"
+    IMAGE_TAG=dirty
+    FULL_IMAGE_NAME="${IMAGE_NAME}:${IMAGE_TAG}"
 elif [[ $(git -C "${DIR}" diff --stat) != '' ]]; then
     # Main repo is dirty, but core dockerfile is clean
     IMAGE_TAG=dirty
@@ -37,7 +39,7 @@ fi
 
 if [[ $IMAGE_REBUILD == true ]]; then
     if ! docker inspect --type=image "${CORE_IMAGE_NAME}" >/dev/null 2>&1 \
-      -o [[ $LIBERTY_CORE_TAG == dirty ]]; then
+      || [[ $LIBERTY_CORE_TAG == dirty ]]; then
         # Rebuild core image
         docker build -t "${CORE_IMAGE_NAME}" "${DIR}/liberty-core-docker"
     fi
