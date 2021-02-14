@@ -3,6 +3,11 @@ import discord
 import asyncio
 
 _AUDIO_DIR = 'assets/audio/'
+_DEEP_FRIED_FFMPEG_OPTIONS = '-v debug -y -af volume=5,bass=g=8,treble=g=-10'
+
+manipulations = {
+    'deepfry' : _DEEP_FRIED_FFMPEG_OPTIONS,
+}
 
 # A file to handle audio queueing and other disasters
 class AudioHandler:
@@ -19,6 +24,7 @@ class AudioHandler:
     async def connect_to_voice(self, channel):
         if not channel:
             # Probably throw an error here?
+            print("Ain't got no channel")
             return False
         self._voice_client = await channel.connect()
 
@@ -28,10 +34,11 @@ class AudioHandler:
         self._voice_client = None
 
 
-    async def add_song(self, song):
+    async def add_song(self, song, channel_id=None, manipulation=None):
         # TODO accept local songs or youtube URLS??
         # TODO flesh out song object and audio reporting stuff
-        await self.queue.put(self.Song('test', song, None))
+        opts = manipulations[manipulation] if manipulation else None
+        await self.queue.put(self.Song(self.guild, 'test', song, channel_id, opts))
         if not self.playing:
             #start playing
             await self.play_next()
@@ -50,9 +57,6 @@ class AudioHandler:
         # Plays the next song in the queue
         # Get next song from queue
         self.playing = await self.queue.get()
-        # Use default channel if none is specified
-        if not self.playing.channel:
-            self.playing.channel = self.guild.voice_channels[0]
         if not self._voice_client:
             await self.connect_to_voice(self.playing.channel)
         elif self._voice_client.channel != self.playing.channel:
@@ -60,7 +64,7 @@ class AudioHandler:
             await self.disconnect_from_voice()
             await self.connect_to_voice(self.playing.channel)
         # Create audio stream, then play it on voice client
-        stream = discord.FFmpegOpusAudio(_AUDIO_DIR + self.playing.path)
+        stream = discord.FFmpegOpusAudio(_AUDIO_DIR + self.playing.path, options=self.playing.ffmpegopts)
         self._voice_client.play(stream, after=self.song_ended)
 
 
@@ -113,7 +117,20 @@ class AudioHandler:
     class Song:
         #TODO add some type of TOSTRING for this class
         #TODO include native verification that the song is real and playable in this class
-        def __init__(self, name, path, channel):
+        def __init__(self, guild, name, path, channel_id, ffmpegopts=None):
+            self.guild = guild
             self.name = name
             self.path = path
-            self.channel = channel
+            if channel_id:
+                self.channel = self._get_channel_from_id(channel_id)
+            else:
+                # Use first voice channel as default
+                self.channel = self.guild.voice_channels[0]
+            self.ffmpegopts=ffmpegopts
+
+
+        def _get_channel_from_id(self, channel_id):
+            # TODO verify this is a voice channel, do some error handling that will destroy the song object if the channel is invalid
+            channel = self.guild.get_channel(channel_id)
+            print(channel)
+            return self.guild.get_channel(channel_id) or self.guild.voice_channels[0]

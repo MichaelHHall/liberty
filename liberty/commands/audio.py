@@ -22,7 +22,13 @@ class Audio(commands.Cog):
     @commands.command(name='play', help='Adds a song to the queue')
     async def play_song(self, context, song, channel_id=None):
         audio_handler = self._audio_handlers[context.guild.id]
-        await audio_handler.add_song(song)
+        await audio_handler.add_song(song, channel_id)
+
+
+    @commands.command(name='deepfry', help='Adds a song to the queue to be played with the deepfry audio distortion')
+    async def deepfry_song(self, context, song, channel_id=None):
+        audio_handler = self._audio_handlers[context.guild.id]
+        await audio_handler.add_song(song, channel_id, 'deepfry')
 
 
     @commands.command(name='next', help='Plays the next song in the queue')
