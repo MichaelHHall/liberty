@@ -24,9 +24,10 @@ class AudioHandler:
     async def connect_to_voice(self, channel):
         if not channel:
             # Probably throw an error here?
-            print("Ain't got no channel")
+            print('No channel provided')
             return False
         self._voice_client = await channel.connect()
+        return True
 
 
     async def disconnect_from_voice(self):
@@ -45,27 +46,39 @@ class AudioHandler:
 
 
     async def skip_song(self):
-        if self.playing:
+        if self.playing and self._voice_client:
             # Stop playing, then call play_next
-            # This actually doesn't work so it's commented out
-            #await self._voice_client.stop()
-            #await self.play_next()
+            self._voice_client.stop()
+            await self.play_next()
             pass
 
 
     async def play_next(self):
         # Plays the next song in the queue
         # Get next song from queue
-        self.playing = await self.queue.get()
+        try:
+            self.playing = self.queue.get_nowait()
+        except asyncio.QueueEmpty:
+            # Nothing in queue, no need to play next
+            self.playing = None
+            await self.disconnect_from_voice()
+            return
         if not self._voice_client:
-            await self.connect_to_voice(self.playing.channel)
+            connected = await self.connect_to_voice(self.playing.channel)
         elif self._voice_client.channel != self.playing.channel:
             # Switch channel to new one
             await self.disconnect_from_voice()
-            await self.connect_to_voice(self.playing.channel)
+            connected = await self.connect_to_voice(self.playing.channel)
+        else:
+            # Already connected to old channel
+            connected = True
         # Create audio stream, then play it on voice client
-        stream = discord.FFmpegOpusAudio(_AUDIO_DIR + self.playing.path, options=self.playing.ffmpegopts)
-        self._voice_client.play(stream, after=self.song_ended)
+        if connected:
+            stream = discord.FFmpegOpusAudio(_AUDIO_DIR + self.playing.path, options=self.playing.ffmpegopts)
+            self._voice_client.play(stream, after=self.song_ended)
+        else:
+            # Couldn't play song, so treat as if song has ended
+            self.song_ended()
 
 
     async def regex_audio(self, path):
@@ -93,14 +106,11 @@ class AudioHandler:
         self._voice_client.play(cur_source, after=self.song_ended)
 
 
-    def song_ended(self, error):
+    def song_ended(self, error=None):
         # If there is a _prev_source from a regex interrupt, recover.
         # If there is an item in the queue, play next. Else, disconnect
         if self._prev_source:
             future = asyncio.run_coroutine_threadsafe(self.regex_recover(), self.loop)
-        elif self.queue.empty():
-            self.playing = None
-            future = asyncio.run_coroutine_threadsafe(self.disconnect_from_voice(), self.loop)
         else:
             self.playing = None
             future = asyncio.run_coroutine_threadsafe(self.play_next(), self.loop)
@@ -115,8 +125,8 @@ class AudioHandler:
 
 
     class Song:
-        #TODO add some type of TOSTRING for this class
-        #TODO include native verification that the song is real and playable in this class
+        # TODO add some type of TOSTRING for this class
+        # TODO include native verification that the song is real and playable in this class
         def __init__(self, guild, name, path, channel_id, ffmpegopts=None):
             self.guild = guild
             self.name = name
@@ -131,6 +141,7 @@ class AudioHandler:
 
         def _get_channel_from_id(self, channel_id):
             # TODO verify this is a voice channel, do some error handling that will destroy the song object if the channel is invalid
+            # TODO figure out why this always gets nothing and always returns voice_channels[0]
             channel = self.guild.get_channel(channel_id)
             print(channel)
             return self.guild.get_channel(channel_id) or self.guild.voice_channels[0]
