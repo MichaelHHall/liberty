@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from handlers.audio import AudioHandler
+from utils.general import StrUtils
 
 # A file for defining audio commands
 class Audio(commands.Cog):
@@ -22,13 +23,19 @@ class Audio(commands.Cog):
     @commands.command(name='play', help='Adds a song to the queue')
     async def play_song(self, context, song, channel_id=None):
         audio_handler = self._audio_handlers[context.guild.id]
-        await audio_handler.add_song(song, channel_id)
+        if StrUtils.isURL(song):
+            await audio_handler.download_and_add_song(song, channel_id)
+        else:
+            await audio_handler.add_song(song, channel_id)
 
 
     @commands.command(name='deepfry', help='Adds a song to the queue to be played with the deepfry audio distortion')
     async def deepfry_song(self, context, song, channel_id=None):
         audio_handler = self._audio_handlers[context.guild.id]
-        await audio_handler.add_song(song, channel_id, 'deepfry')
+        if StrUtils.isURL(song):
+            await audio_handler.download_and_add_song(song, channel_id, 'deepfry')
+        else:
+            await audio_handler.add_song(song, channel_id, 'deepfry')
 
 
     @commands.command(name='next', help='Plays the next song in the queue')

@@ -4,13 +4,18 @@ from discord.ext.commands import Bot
 import commands.text
 import commands.audio
 import responses.process
+from utils.constants import _TMP_DIR
 
 from importlib import reload
 import sys
 import ctypes.util
 import yaml
+from pathlib import Path
 
 discord.opus.load_opus(ctypes.util.find_library('opus'))
+
+# Create tmp directory if it doesn't exist
+Path(_TMP_DIR).mkdir(parents=True, exist_ok=True)
 
 with open('secrets.yml') as stream:
     try:
