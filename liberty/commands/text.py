@@ -10,8 +10,20 @@ class Text(commands.Cog):
         self._last_member = None
 
 
+    async def get_prev_message(self, context, message_limit=25):
+        """Search through previous messages until you find one that contains text"""
+        for message in (await context.channel.history(limit=message_limit).flatten())[1:]:
+            if message.content:
+                resp = message.content
+                return resp
+        return None
+
+
     @commands.command(name='echo', help = 'echo a comment')
     async def echo_message(self, context, *msg):
+        if not msg:
+            msg = []
+            msg.append(await self.get_prev_message(context))
         await context.send(' '.join(msg))
 
 
