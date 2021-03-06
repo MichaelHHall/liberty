@@ -1,9 +1,10 @@
 import discord
-
 import asyncio
+from pathlib import Path
 
-_AUDIO_DIR = 'assets/audio/'
-_DEEP_FRIED_FFMPEG_OPTIONS = '-v debug -y -af volume=5,bass=g=8,treble=g=-10'
+from utils.downloader import PytubeDownloader, YouTubeVideo
+from utils.constants import _AUDIO_DIR, _DEEP_FRIED_FFMPEG_OPTIONS
+from utils.general import FSUtils
 
 manipulations = {
     'deepfry' : _DEEP_FRIED_FFMPEG_OPTIONS,
@@ -35,11 +36,18 @@ class AudioHandler:
         self._voice_client = None
 
 
-    async def add_song(self, song, channel_id=None, manipulation=None):
+    async def download_and_add_song(self, url, channel_id=None, manipulation=None):
+        video = PytubeDownloader.download(url)
+        await self.add_song(video.path, channel_id, manipulation, video.title)
+
+
+    async def add_song(self, song, channel_id=None, manipulation=None, name=None):
         # TODO accept local songs or youtube URLS??
         # TODO flesh out song object and audio reporting stuff
         opts = manipulations[manipulation] if manipulation else None
-        await self.queue.put(self.Song(self.guild, 'test', song, channel_id, opts))
+        if not name:
+            name = song
+        await self.queue.put(self.Song(self.guild, name, song, channel_id, opts))
         if not self.playing:
             #start playing
             await self.play_next()
@@ -74,7 +82,7 @@ class AudioHandler:
             connected = True
         # Create audio stream, then play it on voice client
         if connected:
-            stream = discord.FFmpegOpusAudio(_AUDIO_DIR + self.playing.path, options=self.playing.ffmpegopts)
+            stream = discord.FFmpegOpusAudio(self.playing.path, options=self.playing.ffmpegopts)
             self._voice_client.play(stream, after=self.song_ended)
         else:
             # Couldn't play song, so treat as if song has ended
@@ -112,6 +120,9 @@ class AudioHandler:
         if self._prev_source:
             future = asyncio.run_coroutine_threadsafe(self.regex_recover(), self.loop)
         else:
+            if FSUtils.isTmpDir(self.playing.path):
+                # Song is in tmp dir, we should delete it
+                Path(self.playing.path).unlink(missing_ok=True)
             self.playing = None
             future = asyncio.run_coroutine_threadsafe(self.play_next(), self.loop)
         try:
@@ -130,13 +141,22 @@ class AudioHandler:
         def __init__(self, guild, name, path, channel_id, ffmpegopts=None):
             self.guild = guild
             self.name = name
-            self.path = path
+            # Check if path is a full path
+            # if not, add the audio_dir to it
+            if Path(path).exists():
+                self.path = path
+            else:
+                self.path = _AUDIO_DIR + path
             if channel_id:
                 self.channel = self._get_channel_from_id(channel_id)
             else:
                 # Use first voice channel as default
                 self.channel = self.guild.voice_channels[0]
             self.ffmpegopts=ffmpegopts
+
+
+        def __str__(self):
+            return(self.name)
 
 
         def _get_channel_from_id(self, channel_id):
