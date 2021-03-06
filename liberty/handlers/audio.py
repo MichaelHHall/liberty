@@ -4,6 +4,7 @@ from pathlib import Path
 
 from utils.downloader import PytubeDownloader, YouTubeVideo
 from utils.constants import _AUDIO_DIR, _DEEP_FRIED_FFMPEG_OPTIONS
+from utils.general import FSUtils
 
 manipulations = {
     'deepfry' : _DEEP_FRIED_FFMPEG_OPTIONS,
@@ -119,6 +120,9 @@ class AudioHandler:
         if self._prev_source:
             future = asyncio.run_coroutine_threadsafe(self.regex_recover(), self.loop)
         else:
+            if FSUtils.isTmpDir(self.playing.path):
+                # Song is in tmp dir, we should delete it
+                Path(self.playing.path).unlink(missing_ok=True)
             self.playing = None
             future = asyncio.run_coroutine_threadsafe(self.play_next(), self.loop)
         try:

@@ -9,7 +9,9 @@ class FSUtils():
     def isTmpDir(path):
         # Return true if this file is anywhere in the tmp dir
         # This will be used to tell the program if it is safe to delete a file
-        return Path(path) == Path(_TMP_DIR)
+        tmpdir = Path(_TMP_DIR).resolve()
+        testpath = Path(path).resolve()
+        return tmpdir in [testpath] + [p for p in testpath.parents]
 
 
 class StrUtils():
