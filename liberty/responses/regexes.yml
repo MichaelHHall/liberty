@@ -13,4 +13,7 @@
   text_response: 'PATRIOTISM SUBROUTINES ENGAGED'
   reaction_response: '🇺🇸'
   audio_response: 'star_spangled_banner.mp3'
+- regex: '(honorable|withdraw|willie|madisha|hong|africa|parliament)'
+  text_response: 'HONG HONG HONG'
+  audio_response: 'hong.mp3'
 ...
