@@ -42,8 +42,6 @@ class AudioHandler:
 
 
     async def add_song(self, song, channel_id=None, manipulation=None, name=None, source='Local Song', added_by=None):
-        # TODO accept local songs or youtube URLS??
-        # TODO flesh out song object and audio reporting stuff
         opts = manipulations[manipulation] if manipulation else None
         if not name:
             name = song
@@ -148,7 +146,6 @@ class AudioHandler:
 
 
     class Song:
-        # TODO add some type of TOSTRING for this class
         # TODO include native verification that the song is real and playable in this class
         def __init__(self, guild, name, path, source, added_by, channel_id, ffmpegopts=None):
             self.guild = guild
