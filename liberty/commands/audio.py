@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 
 from handlers.audio import AudioHandler
-from utils.general import StrUtils
+from utils.general import StrUtils, EmbedUtils
 
 # A file for defining audio commands
 class Audio(commands.Cog):
@@ -63,13 +63,14 @@ class Audio(commands.Cog):
         # TODO include creating the embed field in the Song class, it looks gross here
         audio_handler = self._audio_handlers[context.guild.id]
         # Create an empty embed
-        embed = discord.Embed(title='Liberty Prime Audio Queue', url='https://patriots.win/', color=0x500000, description='These are all of the songs waiting to be played by Liberty Prime')
+        embed = EmbedUtils.get_list_embed_base()
+        # Add Now Playing Song
         if audio_handler.playing:
-            embed.add_field(name='Now Playing: ' + audio_handler.playing.name, value=audio_handler.playing.source + ' Added By: ' + audio_handler.playing.added_by.display_name, inline=False)
+            EmbedUtils.add_now_playing_field(embed, audio_handler.playing)
         # Iterate over current queue
         q = audio_handler.get_queue()
         for song in q._queue:
-            embed.add_field(name=song.name, value=song.source + ' Added By: ' + song.added_by.display_name, inline=False)
+            EmbedUtils.add_queued_song_field(embed, song)
         if not embed.fields:
-            embed.add_field(name='This list is empty. You can help by expanding it!', value='Use the $play or $deepfry command to add your favorite YouTube videos to the queue!', inline=False)
+            EmbedUtils.add_empty_list_field(embed)
         await context.send(embed=embed)
