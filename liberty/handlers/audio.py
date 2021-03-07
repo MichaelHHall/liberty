@@ -38,17 +38,22 @@ class AudioHandler:
 
     async def download_and_add_song(self, url, channel_id=None, manipulation=None, added_by=None):
         video = PytubeDownloader.download(url)
-        await self.add_song(video.path, channel_id, manipulation, video.title, source='Downloaded Youtube Audio', added_by=added_by)
+        return await self.add_song(video.path, channel_id, manipulation, video.title, source='Downloaded Youtube Audio', added_by=added_by)
 
 
     async def add_song(self, song, channel_id=None, manipulation=None, name=None, source='Local Song', added_by=None):
         opts = manipulations[manipulation] if manipulation else None
         if not name:
             name = song
-        await self.queue.put(self.Song(self.guild, name, song, source, added_by, channel_id, opts))
+        song_object = self.Song(self.guild, name, song, source, added_by, channel_id, opts)
+        if not song_object.is_song_valid():
+            # This kicks it back to the command handler to report that the song could not be played
+            return False
+        await self.queue.put(song_object)
         if not self.playing:
             #start playing
             await self.play_next()
+        return True
 
 
     async def skip_song(self):
@@ -142,7 +147,6 @@ class AudioHandler:
 
 
     class Song:
-        # TODO include native verification that the song is real and playable in this class
         def __init__(self, guild, name, path, source, added_by, channel_id, ffmpegopts=None):
             self.guild = guild
             self.name = name
@@ -166,9 +170,23 @@ class AudioHandler:
             return(self.name)
 
 
+        def _is_playable(self):
+            # Bare minimum, check if path exists
+            # Better, check if path is playable audio file
+            if Path(self.path).is_file():
+                return True
+            return False
+
+
+        def _is_channel_valid(self):
+            if self.channel:
+                return True
+            return False
+
+
+        def is_song_valid(self):
+            return self._is_playable() and self._is_channel_valid()
+
+
         def _get_channel_from_id(self, channel_id):
-            # TODO verify this is a voice channel, do some error handling that will destroy the song object if the channel is invalid
-            # TODO figure out why this always gets nothing and always returns voice_channels[0]
-            channel = self.guild.get_channel(channel_id)
-            print(channel)
-            return self.guild.get_channel(channel_id) or self.guild.voice_channels[0]
+            return self.guild.get_channel(int(channel_id)) or self.guild.voice_channels[0]

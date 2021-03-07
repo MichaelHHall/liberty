@@ -25,9 +25,11 @@ class Audio(commands.Cog):
         audio_handler = self._audio_handlers[context.guild.id]
         added_by=context.author
         if StrUtils.isURL(song):
-            await audio_handler.download_and_add_song(song, channel_id, added_by=added_by)
+            res = await audio_handler.download_and_add_song(song, channel_id, added_by=added_by)
         else:
-            await audio_handler.add_song(song, channel_id, added_by=added_by)
+            res = await audio_handler.add_song(song, channel_id, added_by=added_by)
+        if not res:
+            await context.send('This audio file could not be played')
 
 
     @commands.command(name='deepfry', help='Adds a song to the queue to be played with the deepfry audio distortion')
@@ -35,9 +37,11 @@ class Audio(commands.Cog):
         audio_handler = self._audio_handlers[context.guild.id]
         added_by=context.author
         if StrUtils.isURL(song):
-            await audio_handler.download_and_add_song(song, channel_id, 'deepfry', added_by=added_by)
+            res = await audio_handler.download_and_add_song(song, channel_id, 'deepfry', added_by=added_by)
         else:
-            await audio_handler.add_song(song, channel_id, 'deepfry', added_by=added_by)
+            res = await audio_handler.add_song(song, channel_id, 'deepfry', added_by=added_by)
+        if not res:
+            await context.send('This audio file could not be played')
 
 
     @commands.command(name='next', help='Plays the next song in the queue')
