@@ -18,7 +18,7 @@ class AudioHandler:
         self.guild = guild
         self.playing = None
         self._voice_client = None
-        self._prev_source = None
+        self._prev_source = []
         self.loop = asyncio.get_event_loop()
 
 
@@ -107,20 +107,16 @@ class AudioHandler:
 
 
     async def regex_interrupt(self, path):
-        # Pause current stream, store it, play regex
-        # TODO turn self._prev_source into a stack so that multiple regexes don't kill each other
-        # and regex_recover can complete them all recursively before returning to the queue
-        # This system is bad but I declare victory since I made a feature that terminus can't do
+        # Pause current stream, store it in a stack, play regex
         self._voice_client.pause()
-        self._prev_source = self._voice_client.source
+        self._prev_source.append(self._voice_client.source)
         new_source = discord.FFmpegOpusAudio(_AUDIO_DIR + path)
         self._voice_client.source = new_source
         self._voice_client.resume()
 
 
     async def regex_recover(self):
-        cur_source = self._prev_source
-        self._prev_source = None
+        cur_source = self._prev_source.pop()
         self._voice_client.play(cur_source, after=self.song_ended)
 
 
