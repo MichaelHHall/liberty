@@ -58,19 +58,20 @@ class Audio(commands.Cog):
 
     @commands.command(name='list', help='Lists songs in the queue')
     async def list_queue(self, context):
-        # TODO handle long queues by splitting embeds based on character limit
         # TODO add more info per song including deepfried/regular, length, thumbnail
-        # TODO include creating the embed field in the Song class, it looks gross here
         audio_handler = self._audio_handlers[context.guild.id]
         # Create an empty embed
-        embed = EmbedUtils.get_list_embed_base()
+        embeds = [EmbedUtils.get_list_embed_base()]
         # Add Now Playing Song
         if audio_handler.playing:
-            EmbedUtils.add_now_playing_field(embed, audio_handler.playing)
+            EmbedUtils.add_now_playing_field(embeds[-1], audio_handler.playing)
         # Iterate over current queue
         q = audio_handler.get_queue()
         for song in q._queue:
-            EmbedUtils.add_queued_song_field(embed, song)
-        if not embed.fields:
-            EmbedUtils.add_empty_list_field(embed)
-        await context.send(embed=embed)
+            if len(embeds[-1].fields) >= 25:
+                embeds.append(EmbedUtils.get_list_embed_continuation(len(embeds)))
+            EmbedUtils.add_queued_song_field(embeds[-1], song)
+        if not embeds[0].fields:
+            EmbedUtils.add_empty_list_field(embeds[-1])
+        for embed in embeds:
+            await context.send(embed=embed)

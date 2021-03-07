@@ -44,7 +44,7 @@ class EmbedUtils():
         else:
             # Blue
             color = 0x0000ff
-        return discord.Embed(title='Liberty Prime Audio Queue Page ' + str(pagenum), url='https://patriots.win/', color=color)
+        return discord.Embed(title='Liberty Prime Audio Queue Page ' + str(pagenum+1), url='https://patriots.win/', color=color)
 
 
     @staticmethod
