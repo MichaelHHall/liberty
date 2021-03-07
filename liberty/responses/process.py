@@ -26,7 +26,10 @@ class Processor(commands.Cog):
     
     @commands.Cog.listener()
     async def on_message(self, message):
+        # Don't process regexes in commands or messages from liberty
         if message.author == self.bot.user:
+            return
+        if message.content.startswith(self.bot.command_prefix):
             return
         #check if a regex matches
         for reg in self.regexes:
