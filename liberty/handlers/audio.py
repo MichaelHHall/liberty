@@ -36,18 +36,18 @@ class AudioHandler:
         self._voice_client = None
 
 
-    async def download_and_add_song(self, url, channel_id=None, manipulation=None):
+    async def download_and_add_song(self, url, channel_id=None, manipulation=None, added_by=None):
         video = PytubeDownloader.download(url)
-        await self.add_song(video.path, channel_id, manipulation, video.title)
+        await self.add_song(video.path, channel_id, manipulation, video.title, source='Downloaded Youtube Audio', added_by=added_by)
 
 
-    async def add_song(self, song, channel_id=None, manipulation=None, name=None):
+    async def add_song(self, song, channel_id=None, manipulation=None, name=None, source='Local Song', added_by=None):
         # TODO accept local songs or youtube URLS??
         # TODO flesh out song object and audio reporting stuff
         opts = manipulations[manipulation] if manipulation else None
         if not name:
             name = song
-        await self.queue.put(self.Song(self.guild, name, song, channel_id, opts))
+        await self.queue.put(self.Song(self.guild, name, song, source, added_by, channel_id, opts))
         if not self.playing:
             #start playing
             await self.play_next()
@@ -138,9 +138,11 @@ class AudioHandler:
     class Song:
         # TODO add some type of TOSTRING for this class
         # TODO include native verification that the song is real and playable in this class
-        def __init__(self, guild, name, path, channel_id, ffmpegopts=None):
+        def __init__(self, guild, name, path, source, added_by, channel_id, ffmpegopts=None):
             self.guild = guild
             self.name = name
+            self.source = source
+            self.added_by = added_by
             # Check if path is a full path
             # if not, add the audio_dir to it
             if Path(path).exists():
