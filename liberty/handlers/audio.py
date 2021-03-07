@@ -55,10 +55,8 @@ class AudioHandler:
 
     async def skip_song(self):
         if self.playing and self._voice_client:
-            # Stop playing, then call play_next
+            # Stop playing, which apparently calls the stream's 'after' callback
             self._voice_client.stop()
-            await self.play_next()
-            pass
 
 
     async def play_next(self):
