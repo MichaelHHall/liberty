@@ -60,8 +60,16 @@ class AudioHandler:
 
 
     async def kill_music(self):
-        # Reset queue to empty, skip whatever is currently playing
-        self.queue = asyncio.Queue()
+        # Loop through the queue and skip songs until empty
+        # Skip once more to clear the currently playing song
+        # This forces it to go through the proper cleanup process for each song
+        # Including deleting tmp files
+        while not self.queue.empty():
+            await self.skip_song()
+            # This is necessary to hand control over to the voice client callback
+            # Otherwise this loop continuously executes without actually processing the queue
+            # A more elegant solution to yielding control here is welcomed.
+            await asyncio.sleep(0.1)
         await self.skip_song()
 
 
