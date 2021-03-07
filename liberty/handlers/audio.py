@@ -59,6 +59,12 @@ class AudioHandler:
             self._voice_client.stop()
 
 
+    async def kill_music(self):
+        # Reset queue to empty, skip whatever is currently playing
+        self.queue = asyncio.Queue()
+        await self.skip_song()
+
+
     async def play_next(self):
         # Plays the next song in the queue
         # Get next song from queue

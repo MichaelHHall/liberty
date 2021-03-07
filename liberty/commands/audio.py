@@ -46,6 +46,12 @@ class Audio(commands.Cog):
         await audio_handler.skip_song()
 
 
+    @commands.command(name='killmusic', help='deletes the queue and ends the current song')
+    async def kill_music(self, context):
+        audio_handler = self._audio_handlers[context.guild.id]
+        await audio_handler.kill_music()
+
+
     @commands.command(name='list', help='Lists songs in the queue')
     async def list_queue(self, context):
         # TODO handle long queues by splitting embeds based on character limit
