@@ -31,9 +31,8 @@ class Processor(commands.Cog):
         #check if a regex matches
         for reg in self.regexes:
             try:
-                if re.match(reg['regex'], message.content):
+                if re.search(reg['regex'], message.content):
                     # Process responses
-                    print("match found")
                     for key in reg.keys():
                         method = getattr(self, key)
                         if type(reg[key]) is str:
