@@ -16,4 +16,6 @@
 - regex: '(honorable|withdraw|willie|madisha|hong|africa|parliament)'
   text_response: 'HONG HONG HONG'
   audio_response: 'hong.mp3'
+- regex: 'cum'
+  audio_response: 'gonnacum.mp3'
 ...
