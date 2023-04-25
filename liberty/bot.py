@@ -47,7 +47,7 @@ _COGS = define_cogs()
 async def on_ready():
     print(_COGS)
     for name, cog in _COGS.items():
-        bot.add_cog(cog[0](bot))
+        await bot.add_cog(cog[0](bot))
     print(f'Bot connected as {bot.user}')
     print(f'Bot is living in {bot.guilds}')
 
@@ -62,7 +62,7 @@ async def reload_cogs(context, cog=None):
         reload(sys.modules[_COGS[cog][1]])
         _COGS = define_cogs()
         if cog not in _DISABLED_COGS:
-            bot.add_cog(_COGS[cog][0](bot))
+            await bot.add_cog(_COGS[cog][0](bot))
             reloaded.append(cog.upper())
     else:
         # Reload all cogs
@@ -73,7 +73,7 @@ async def reload_cogs(context, cog=None):
         _COGS = define_cogs()
         for name, cog in _COGS.items():
             if name not in _DISABLED_COGS:
-                bot.add_cog(cog[0](bot))
+                await bot.add_cog(cog[0](bot))
                 reloaded.append(name.upper())
     await context.send(f'RELOAD OF {reloaded} SECURED. AMERICAN VICTORY IS ASSURED.')
 
