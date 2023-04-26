@@ -58,7 +58,7 @@ async def reload_cogs(context, cog=None):
     global _COGS
     if cog and cog in _COGS.keys():
         # Reload single cog
-        bot.remove_cog(cog)
+        await bot.remove_cog(cog)
         reload(sys.modules[_COGS[cog][1]])
         _COGS = define_cogs()
         if cog not in _DISABLED_COGS:
@@ -67,7 +67,7 @@ async def reload_cogs(context, cog=None):
     else:
         # Reload all cogs
         for name, cog in _COGS.items():
-            bot.remove_cog(name)
+            await bot.remove_cog(name)
             print(cog)
             reload(sys.modules[cog[1]])
         _COGS = define_cogs()
