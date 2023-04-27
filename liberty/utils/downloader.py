@@ -1,4 +1,6 @@
 from pytube import YouTube
+from yt_dlp import YoutubeDL
+import json
 
 from utils.constants import _TMP_DIR
 from utils.general import FSUtils, StrUtils
@@ -17,14 +19,35 @@ class PytubeDownloader():
         if not url:
             print("Must Provide URL")
             return None
-        yt = YouTube(url)
-        if not video:
-            streams = yt.streams.filter(only_audio=True)
-        else:
-            streams = yt.streams.filter(progressive=True)
-        # Could filter here to get preferred resolution/file type
-        # For more specificity on video/audio would have to move inside the 'if'
-        ys = streams.first()
-        path = ys.download(output_path=_TMP_DIR, filename=StrUtils.generateFilename('youtube'))
-        return YouTubeVideo(yt.title, path, yt.length, video)
+        # Try to download with pytube, if that fails use yt-dlp
+        # TODO: Abstract this into two separate downloader classes and somehow choose between the two (or try them all)
+        try:
+            yt = YouTube(url)
+            if not video:
+                streams = yt.streams.filter(only_audio=True)
+            else:
+                streams = yt.streams.filter(progressive=True)
+            # Could filter here to get preferred resolution/file type
+            # For more specificity on video/audio would have to move inside the 'if'
+            ys = streams.first()
+            title = yt.title
+            path = ys.download(output_path=_TMP_DIR, filename=StrUtils.generateFilename('youtube'))
+            length = yt.length
+        except:
+            # TODO: Fix known issue where the tmpfile output is not a unique filename, so adding the same video to the queue multiple times causes it to get deleted too early
+            ydl_opts = {
+                'format': 'm4a/bestaudio/best',
+                'postprocessors': [{  # Extract audio using ffmpeg
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'm4a',
+                }],
+                'outtmpl': {'default': _TMP_DIR + '%(id)s.%(ext)s'}
+            }
+            with YoutubeDL(ydl_opts) as ydl:
+                info = ydl.sanitize_info(ydl.extract_info(url, download=True))
+                title = info.get('title')
+                path = _TMP_DIR + info.get('id') + '.' + info.get('ext')
+                length = info.get('duration')
+            pass
+        return YouTubeVideo(title, path, length, video)
 

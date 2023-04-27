@@ -29,12 +29,12 @@ class StrUtils():
 
 class EmbedUtils():
     @staticmethod
-    def get_list_embed_base():
-        return discord.Embed(title='Liberty Prime Audio Queue', url='https://patriots.win/', color=0x500000, description='These are all of the songs waiting to be played by Liberty Prime')
+    def get_list_embed_base(title, description):
+        return discord.Embed(title=title, url='https://patriots.win/', color=0x500000, description=description)
 
 
     @staticmethod
-    def get_list_embed_continuation(pagenum):
+    def get_list_embed_continuation(pagenum, title, description=None):
         if pagenum%3 == 0:
             # Red (Aggie Maroon, Gig 'em!)
             color = 0x500000
@@ -44,7 +44,7 @@ class EmbedUtils():
         else:
             # Blue
             color = 0x0000ff
-        return discord.Embed(title='Liberty Prime Audio Queue Page ' + str(pagenum+1), url='https://patriots.win/', color=color)
+        return discord.Embed(title=title + ' Page ' + str(pagenum+1), url='https://patriots.win/', color=color, description=description)
 
 
     @staticmethod
@@ -60,3 +60,8 @@ class EmbedUtils():
     @staticmethod
     def add_queued_song_field(embed, song):
         embed.add_field(name=song.name, value=song.source + ' Added By: ' + song.added_by.display_name, inline=False)
+
+
+    @staticmethod
+    def add_available_song_field(embed, filename):
+        embed.add_field(name=filename, value='')
