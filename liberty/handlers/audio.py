@@ -1,5 +1,6 @@
 import discord
 import asyncio
+import shutil
 from pathlib import Path
 
 from utils.downloader import PytubeDownloader, YouTubeVideo
@@ -39,6 +40,21 @@ class AudioHandler:
     async def download_and_add_song(self, url, channel_id=None, manipulation=None, added_by=None):
         video = PytubeDownloader.download(url)
         return await self.add_song(video.path, channel_id, manipulation, video.title, source='Downloaded Youtube Audio', added_by=added_by)
+
+
+    async def save_song(self, name, queue_position=None):
+        if not self.playing:
+            print('Cannot save song if nothing is playing')
+            return False
+        # If no queue position is given, use currently playing song
+        song = self.playing
+        if queue_position is not None:
+            # I think it's slightly illegal to access the queue object this way
+            song = self.queue._queue[queue_position]
+        old_path = song.path
+        new_path = _AUDIO_DIR + name
+        shutil.copyfile(old_path, new_path)
+        return True
 
 
     async def add_song(self, song, channel_id=None, manipulation=None, name=None, source='Local Song', added_by=None):

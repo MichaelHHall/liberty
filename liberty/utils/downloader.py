@@ -34,9 +34,9 @@ class PytubeDownloader():
             path = ys.download(output_path=_TMP_DIR, filename=StrUtils.generateFilename('youtube'))
             length = yt.length
         except:
+            # TODO: Fix known issue where the tmpfile output is not a unique filename, so adding the same video to the queue multiple times causes it to get deleted too early
             ydl_opts = {
                 'format': 'm4a/bestaudio/best',
-                # ℹ️ See help(yt_dlp.postprocessor) for a list of available Postprocessors and their arguments
                 'postprocessors': [{  # Extract audio using ffmpeg
                     'key': 'FFmpegExtractAudio',
                     'preferredcodec': 'm4a',
