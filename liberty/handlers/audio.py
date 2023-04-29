@@ -120,11 +120,11 @@ class AudioHandler:
             self.song_ended()
 
 
-    async def regex_audio(self, path):
+    async def regex_audio(self, path, added_by=None):
         if self.playing:
             await self.regex_interrupt(path)
         else:
-            await self.add_song(path)
+            await self.add_song(path, source='Regex triggered audio', added_by=added_by)
 
 
     async def regex_interrupt(self, path):

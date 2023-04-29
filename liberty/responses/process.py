@@ -71,6 +71,6 @@ class Processor(commands.Cog):
             # We can do audio stuff
             _audio_handler = self._audio_handlers[message.guild.id]
             # response is a list, I should make this handle bigger lists eventually
-            await _audio_handler.regex_audio(response[0])
+            await _audio_handler.regex_audio(response[0], added_by=message.author)
         else:
             print('Audio responses disabled because Audio cog is not here')
