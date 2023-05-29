@@ -1,6 +1,7 @@
 from pytube import YouTube
 from yt_dlp import YoutubeDL
 import json
+import time
 
 from utils.constants import _TMP_DIR
 from utils.general import FSUtils, StrUtils
@@ -51,19 +52,19 @@ class PytubeDownloader(YouTubeDownloader):
 class YoutubeDLDownloader(YouTubeDownloader):
     @staticmethod
     def download(url=None, video=False):
-        # TODO: Fix known issue where the tmpfile output is not a unique filename, so adding the same video to the queue multiple times causes it to get deleted too early
+        ts = str(time.time_ns())
         ydl_opts = {
             'format': 'm4a/bestaudio/best',
             'postprocessors': [{  # Extract audio using ffmpeg
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'm4a',
             }],
-            'outtmpl': {'default': _TMP_DIR + '%(id)s.%(ext)s'}
+            'outtmpl': {'default': _TMP_DIR + '%(id)s' + '_' + ts + '.%(ext)s'}
         }
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.sanitize_info(ydl.extract_info(url, download=True))
             title = info.get('title')
-            path = _TMP_DIR + info.get('id') + '.' + info.get('ext')
+            path = _TMP_DIR + info.get('id') + '_' + ts + '.' + info.get('ext')
             length = info.get('duration')
         return YouTubeVideo(title, path, length, video)
 
