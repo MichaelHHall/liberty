@@ -68,7 +68,7 @@ class YoutubeDLDownloader(YouTubeDownloader):
         return YouTubeVideo(title, path, length, video)
 
 
-ALL_YT_DOWNLOADERS = [PytubeDownloader, YoutubeDLDownloader]
+ALL_YT_DOWNLOADERS = [YoutubeDLDownloader, PytubeDownloader]
 
 def download(url=None, video=False, downloaders_list=ALL_YT_DOWNLOADERS):
     """ Attempt to download a video with each given downloader """
