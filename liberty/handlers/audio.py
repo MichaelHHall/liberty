@@ -3,7 +3,7 @@ import asyncio
 import shutil
 from pathlib import Path
 
-from utils.downloader import PytubeDownloader, YouTubeVideo
+from utils.downloader import YouTubeVideo, download
 from utils.constants import _AUDIO_DIR, _DEEP_FRIED_FFMPEG_OPTIONS
 from utils.general import FSUtils
 
@@ -38,7 +38,7 @@ class AudioHandler:
 
 
     async def download_and_add_song(self, url, channel_id=None, manipulation=None, added_by=None):
-        video = PytubeDownloader.download(url)
+        video = download(url)
         return await self.add_song(video.path, channel_id, manipulation, video.title, source='Downloaded Youtube Audio', added_by=added_by)
 
 
