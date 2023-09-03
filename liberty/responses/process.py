@@ -5,6 +5,9 @@ from handlers.audio import AudioHandler
 
 import yaml
 import re
+import logging
+
+logger = logging.getLogger('RegexProcessor')
 
 # A file for processing regexes and sending responses to their respective handlers
 class Processor(commands.Cog):
@@ -15,13 +18,13 @@ class Processor(commands.Cog):
             self._audio_handlers = self.bot.get_cog('Audio')._audio_handlers
         except:
             self._audio_handlers = None
-            print('Audio system broke')
+            logger.error('Audio system broke')
         # Probably want to import my yaml here
         with open("responses/regexes.yml") as stream:
             try:
                 self.regexes = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
-                print(exc)
+                logger.error(exc)
 
     
     @commands.Cog.listener()
@@ -44,7 +47,7 @@ class Processor(commands.Cog):
                             resp = reg[key]
                         await method(message, resp)
             except KeyError as e:
-                print(e)
+                logger.error(e)
                 continue
     
 
@@ -73,4 +76,4 @@ class Processor(commands.Cog):
             # response is a list, I should make this handle bigger lists eventually
             await _audio_handler.regex_audio(response[0], added_by=message.author)
         else:
-            print('Audio responses disabled because Audio cog is not here')
+            logger.warning('Audio responses disabled because Audio cog is not here')

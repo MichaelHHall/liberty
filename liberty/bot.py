@@ -11,6 +11,10 @@ import sys
 import ctypes.util
 import yaml
 from pathlib import Path
+import logging
+
+logging.basicConfig(filename='liberty.log', level=logging.INFO)
+logger = logging.getLogger('liberty')
 
 discord.opus.load_opus(ctypes.util.find_library('opus'))
 
@@ -21,7 +25,7 @@ with open('secrets.yml') as stream:
     try:
         secrets = yaml.safe_load(stream)
     except yaml.YAMLError as exc:
-        print(exc)
+        logger.error(exc)
 
 
 # Make a new bot class
@@ -45,11 +49,11 @@ _COGS = define_cogs()
 
 @bot.event
 async def on_ready():
-    print(_COGS)
+    logger.info(_COGS)
     for name, cog in _COGS.items():
         await bot.add_cog(cog[0](bot))
-    print(f'Bot connected as {bot.user}')
-    print(f'Bot is living in {bot.guilds}')
+    logger.info(f'Bot connected as {bot.user}')
+    logger.info(f'Bot is living in {bot.guilds}')
 
 
 @bot.command(name='reload', help='Reloads a cog. If no arg is provided, reloads all cogs')
@@ -68,7 +72,7 @@ async def reload_cogs(context, cog=None):
         # Reload all cogs
         for name, cog in _COGS.items():
             await bot.remove_cog(name)
-            print(cog)
+            logger.info(cog)
             reload(sys.modules[cog[1]])
         _COGS = define_cogs()
         for name, cog in _COGS.items():

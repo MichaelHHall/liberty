@@ -1,10 +1,13 @@
 import discord
 from discord.ext import commands
 import os
+import logging
 
 from handlers.audio import AudioHandler
 from utils.general import StrUtils, EmbedUtils
 from utils.constants import _AUDIO_DIR
+
+logger = logging.getLogger('AudioCommands')
 
 # A file for defining audio commands
 class Audio(commands.Cog):
@@ -17,7 +20,7 @@ class Audio(commands.Cog):
 
 
     def init_handler(self, guild):
-        print('init handler for guild ', guild.id)
+        logger.info('init handler for guild ', guild.id)
         if guild.id not in self._audio_handlers.keys():
             self._audio_handlers[guild.id] = AudioHandler(guild)
 

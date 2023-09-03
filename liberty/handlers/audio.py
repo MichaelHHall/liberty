@@ -2,10 +2,13 @@ import discord
 import asyncio
 import shutil
 from pathlib import Path
+import logging
 
 from utils.downloader import YouTubeVideo, download
 from utils.constants import _AUDIO_DIR, _DEEP_FRIED_FFMPEG_OPTIONS
 from utils.general import FSUtils
+
+logger = logging.getLogger('AudioHandler')
 
 manipulations = {
     'deepfry' : _DEEP_FRIED_FFMPEG_OPTIONS,
@@ -14,7 +17,7 @@ manipulations = {
 # A file to handle audio queueing and other disasters
 class AudioHandler:
     def __init__(self, guild):
-        print('initing Audio system')
+        logger.info('initing Audio system')
         self.queue = asyncio.Queue()
         self.guild = guild
         self.playing = None
@@ -26,7 +29,7 @@ class AudioHandler:
     async def connect_to_voice(self, channel):
         if not channel:
             # Probably throw an error here?
-            print('No channel provided')
+            logger.warning('No channel provided')
             return False
         self._voice_client = await channel.connect()
         return True
@@ -44,7 +47,7 @@ class AudioHandler:
 
     async def save_song(self, name, queue_position=None):
         if not self.playing:
-            print('Cannot save song if nothing is playing')
+            logger.warning('Cannot save song if nothing is playing')
             return False
         # If no queue position is given, use currently playing song
         song = self.playing
@@ -155,7 +158,7 @@ class AudioHandler:
         try:
             future.result()
         except Exception as e:
-            print(e)
+            logger.error(e)
 
 
     def get_queue(self):
