@@ -3,6 +3,7 @@ from discord.ext import commands
 
 from handlers.audio import AudioHandler
 
+import os
 import yaml
 import re
 import logging
@@ -19,7 +20,10 @@ class Processor(commands.Cog):
         except:
             self._audio_handlers = None
             logger.error('Audio system broke')
-        # Probably want to import my yaml here
+        # If The file doesn't exist, bail out
+        if not os.path.exists('responses/regexes.yml'):
+            self.regexes = []
+            return
         with open("responses/regexes.yml") as stream:
             try:
                 self.regexes = yaml.safe_load(stream)
@@ -37,7 +41,7 @@ class Processor(commands.Cog):
         #check if a regex matches
         for reg in self.regexes:
             try:
-                if re.search(reg['regex'], message.content):
+                if re.search(reg['regex'], message.content, re.IGNORECASE):
                     # Process responses
                     for key in reg.keys():
                         method = getattr(self, key)
@@ -74,6 +78,7 @@ class Processor(commands.Cog):
             # We can do audio stuff
             _audio_handler = self._audio_handlers[message.guild.id]
             # response is a list, I should make this handle bigger lists eventually
-            await _audio_handler.regex_audio(response[0], added_by=message.author)
+            for resp in response:
+                await _audio_handler.regex_audio(resp, added_by=message.author)
         else:
             logger.warning('Audio responses disabled because Audio cog is not here')

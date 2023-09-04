@@ -27,11 +27,14 @@ class BucketHandler:
         return self.bucket_utils.upload_file(path, dest_path)
 
 
-    async def init_assets(self):
-        liberty_assets = await self.list_keys()
+    async def init_assets(self, keys=None, force=False):
+        if keys is None:
+            liberty_assets = await self.list_keys()
+        else:
+            liberty_assets = keys
         for key in liberty_assets:
             dest_path = _ASSETS_DIR + key
-            if not os.path.exists(dest_path):
+            if force or not os.path.exists(dest_path):
                 logger.info(f'Downloading asset {key}')
                 await self.download_file(dest_path, key)
             else:
