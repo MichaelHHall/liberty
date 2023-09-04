@@ -2,6 +2,7 @@ import discord
 from discord.ext import commands
 
 from handlers.audio import AudioHandler
+from utils.constants import _REGEX_RESPONSES_FILE
 
 import os
 import yaml
@@ -21,10 +22,10 @@ class Processor(commands.Cog):
             self._audio_handlers = None
             logger.error('Audio system broke')
         # If The file doesn't exist, bail out
-        if not os.path.exists('responses/regexes.yml'):
+        if not os.path.exists(_REGEX_RESPONSES_FILE):
             self.regexes = []
             return
-        with open("responses/regexes.yml") as stream:
+        with open(_REGEX_RESPONSES_FILE) as stream:
             try:
                 self.regexes = yaml.safe_load(stream)
             except yaml.YAMLError as exc:
