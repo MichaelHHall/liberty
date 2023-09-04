@@ -3,6 +3,8 @@ from discord.ext.commands import Bot
 
 import commands.text
 import commands.audio
+import commands.buckets
+from handlers.buckets import BucketHandler
 import responses.process
 from utils.constants import _TMP_DIR
 
@@ -41,14 +43,17 @@ def define_cogs():
     return {
         'Text': (commands.text.Text, 'commands.text'),
         'Audio': (commands.audio.Audio, 'commands.audio'),
+        'Buckets': (commands.buckets.Buckets, 'commands.buckets'),
         'Processor': (responses.process.Processor, 'responses.process'),
     }
 
-_DISABLED_COGS = []
+_DISABLED_COGS = ['Buckets']
 _COGS = define_cogs()
 
 @bot.event
 async def on_ready():
+    logger.info('Initing assets...')
+    await BucketHandler().init_assets()
     logger.info(_COGS)
     for name, cog in _COGS.items():
         await bot.add_cog(cog[0](bot))

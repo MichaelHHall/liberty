@@ -20,7 +20,7 @@ class Audio(commands.Cog):
 
 
     def init_handler(self, guild):
-        logger.info('init handler for guild ', guild.id)
+        logger.info(f'init handler for guild {guild.id}')
         if guild.id not in self._audio_handlers.keys():
             self._audio_handlers[guild.id] = AudioHandler(guild)
 

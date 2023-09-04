@@ -1,5 +1,6 @@
 secrets.yml
 secrets_test.yml
+secrets_prod.yml
 liberty_env
 *.pyc
 *.swp
