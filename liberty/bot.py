@@ -53,7 +53,8 @@ _COGS = define_cogs()
 @bot.event
 async def on_ready():
     logger.info('Initing assets...')
-    await BucketHandler().init_assets()
+    bot.bucket_handler = BucketHandler()
+    await bot.bucket_handler.init_assets()
     logger.info(_COGS)
     for name, cog in _COGS.items():
         await bot.add_cog(cog[0](bot))

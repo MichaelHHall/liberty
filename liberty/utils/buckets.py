@@ -55,7 +55,7 @@ class S3Utils():
     def upload_file(self, file_path, b2path=None):
         remote_path = b2path
         if remote_path is None:
-            remote_path = file
+            remote_path = file_path
         try:
             response = self.b2.Bucket(_ASSETS_BUCKET_NAME).upload_file(file_path, remote_path)
         except ClientError as ce:
