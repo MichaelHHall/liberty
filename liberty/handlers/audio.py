@@ -3,6 +3,7 @@ import asyncio
 import shutil
 from pathlib import Path
 import logging
+import os
 
 from utils.downloader import YouTubeVideo, download
 from utils.constants import _AUDIO_DIR, _DEEP_FRIED_FFMPEG_OPTIONS
@@ -57,6 +58,9 @@ class AudioHandler:
             song = self.queue._queue[queue_position]
         old_path = song.path
         new_path = _AUDIO_DIR + name
+        if os.path.exists(new_path):
+            logger.warning(f'Not saving song file {new_path} because a file already exists there')
+            return False
         shutil.copyfile(old_path, new_path)
         # Upload saved song to the cloud for persistence if we have buckets
         if bucket_handler:
