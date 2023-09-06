@@ -63,14 +63,19 @@ class Audio(commands.Cog):
 
     @commands.command(name='save', help='Saves the selected song to the assets directory')
     async def save_song(self, context, name, queue_position=None):
+        if not name.isalnum():
+            logger.warning(f'Someone has tried to use a non-alphanumeric name: {name} user: {context.author}')
+            await context.send('Only use alphanumerics here. Nice try though.')
+            return
         audio_handler = self._audio_handlers[context.guild.id]
         if queue_position:
             try:
                 queue_position = int(queue_position)
-            except:
+            except Exception as e:
                 # Probably should do some error reporting here, but.....
+                logger.error(f'Could not parse queue position: {e}')
                 return
-        await audio_handler.save_song(name, queue_position)
+        await audio_handler.save_song(name, queue_position, self.bot.bucket_handler)
 
 
     @commands.command(name='availablesongs', help='Lists the available songs in the audio assets directory')

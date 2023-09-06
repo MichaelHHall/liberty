@@ -16,15 +16,15 @@ class BucketHandler:
         if not os.path.isdir(os.path.dirname(dest_path)):
             logger.info(f'Directory {os.path.dirname(dest_path)} does not exist, creating it...')
             os.makedirs(os.path.dirname(dest_path), exist_ok=True)
-        self.bucket_utils.download_file(dest_path, src_key)
+        await self.bucket_utils.download_file(dest_path, src_key)
 
 
     async def list_keys(self):
-        return self.bucket_utils.list_object_keys()
+        return await self.bucket_utils.list_object_keys()
 
 
     async def upload_file(self, path, dest_path):
-        return self.bucket_utils.upload_file(path, dest_path)
+        return await self.bucket_utils.upload_file(path, dest_path)
 
 
     async def init_assets(self, keys=None, force=False):

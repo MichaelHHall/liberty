@@ -41,11 +41,12 @@ class AudioHandler:
 
 
     async def download_and_add_song(self, url, channel_id=None, manipulation=None, added_by=None):
-        video = download(url)
+        video = await download(url)
+        logger.info(f'Successfully downloaded {url}')
         return await self.add_song(video.path, channel_id, manipulation, video.title, source='Downloaded Youtube Audio', added_by=added_by)
 
 
-    async def save_song(self, name, queue_position=None):
+    async def save_song(self, name, queue_position=None, bucket_handler=None):
         if not self.playing:
             logger.warning('Cannot save song if nothing is playing')
             return False
@@ -57,6 +58,11 @@ class AudioHandler:
         old_path = song.path
         new_path = _AUDIO_DIR + name
         shutil.copyfile(old_path, new_path)
+        # Upload saved song to the cloud for persistence if we have buckets
+        if bucket_handler:
+            logger.info(f'Uploading {name} to cloud storage')
+            resp = await bucket_handler.upload_file(new_path, 'audio/' + name)
+        logger.info(f'Successfully saved {name}')
         return True
 
 

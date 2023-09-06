@@ -73,12 +73,14 @@ class YoutubeDLDownloader(YouTubeDownloader):
 
 ALL_YT_DOWNLOADERS = [YoutubeDLDownloader, PytubeDownloader]
 
-def download(url=None, video=False, downloaders_list=ALL_YT_DOWNLOADERS):
+async def download(url=None, video=False, downloaders_list=ALL_YT_DOWNLOADERS):
     """ Attempt to download a video with each given downloader """
     for downloader in downloaders_list:
         try:
+            logger.info(f'Attempting to download {url} with {downloader}')
             return downloader.download(url, video)
         except Exception as e:
+            logger.error(f'Failed to download with {downloader}')
             logger.error(e)
             continue
     raise DownloadException(downloaders_list)

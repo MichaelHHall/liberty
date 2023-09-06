@@ -31,15 +31,16 @@ class S3Utils():
         )
 
 
-    def download_file(self, file_path, key_name):
+    async def download_file(self, file_path, key_name):
         try:
+            logger.info(f'Downloading {key_name} to {file_path}...')
             self.b2.Bucket(_ASSETS_BUCKET_NAME).download_file(key_name, file_path)
         except ClientError as ce:
             logger.error(ce)
 
 
     # List the keys of the objects in the assets bucket
-    def list_object_keys(self):
+    async def list_object_keys(self):
         try:
             response = self.b2.Bucket(_ASSETS_BUCKET_NAME).objects.all()
 
@@ -52,10 +53,11 @@ class S3Utils():
             logger.error(ce)
 
 
-    def upload_file(self, file_path, b2path=None):
+    async def upload_file(self, file_path, b2path=None):
         remote_path = b2path
         if remote_path is None:
             remote_path = file_path
+        logger.info(f'Uploading {file_path} to {remote_path}...')
         try:
             response = self.b2.Bucket(_ASSETS_BUCKET_NAME).upload_file(file_path, remote_path)
         except ClientError as ce:
