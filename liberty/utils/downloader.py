@@ -2,10 +2,12 @@ from pytube import YouTube
 from yt_dlp import YoutubeDL
 import json
 import time
+import logging
 
 from utils.constants import _TMP_DIR
 from utils.general import FSUtils, StrUtils
 
+logger = logging.getLogger('DownloaderUtils')
 
 class YouTubeVideo():
     def __init__(self, title, path, length, video):
@@ -33,7 +35,7 @@ class PytubeDownloader(YouTubeDownloader):
     @staticmethod
     def download(url=None, video=False):
         if not url:
-            print("Must Provide URL")
+            logger.warning("Attempting to Download with no URL")
             return None
         yt = YouTube(url)
         if not video:
@@ -77,6 +79,6 @@ def download(url=None, video=False, downloaders_list=ALL_YT_DOWNLOADERS):
         try:
             return downloader.download(url, video)
         except Exception as e:
-            print(e)
+            logger.error(e)
             continue
     raise DownloadException(downloaders_list)
