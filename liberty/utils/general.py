@@ -2,10 +2,24 @@ import discord
 from pathlib import Path
 import validators
 import datetime
+import os
+import shutil
+from contextlib import contextmanager
 
 from utils.constants import _TMP_DIR
 
 class FSUtils():
+    @staticmethod
+    @contextmanager
+    def temp_directory():
+        dirname = _TMP_DIR + StrUtils.generateFilename() + '/'
+        try:
+            os.mkdir(dirname)
+            yield dirname
+        finally:
+            shutil.rmtree(dirname)
+
+
     @staticmethod
     def isTmpDir(path):
         # Return true if this file is anywhere in the tmp dir

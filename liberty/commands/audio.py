@@ -49,6 +49,29 @@ class Audio(commands.Cog):
             await context.send('This audio file could not be played')
 
 
+    @commands.command(name='merge', help='Merges multiple audio sources and plays the result')
+    async def play_song(self, context, *args):
+        sources = []
+        length = None
+        channel_id = None
+        try:
+            for arg in args:
+                if arg.startswith('length'):
+                    length = float(arg.split('=')[1])
+                elif arg.startswith('channel_id'):
+                    channel_id = arg.split('=')[1]
+                else:
+                    sources.append(arg)
+        except:
+            await context.send('Failed to parse arguments, do better next time')
+            return
+        audio_handler = self._audio_handlers[context.guild.id]
+        added_by=context.author
+        res = await audio_handler.merge_and_add_song(sources, length, channel_id, added_by=added_by)
+        if not res:
+            await context.send('This audio file could not be played')
+
+
     @commands.command(name='next', help='Plays the next song in the queue')
     async def play_next(self, context):
         audio_handler = self._audio_handlers[context.guild.id]

@@ -33,7 +33,7 @@ class YouTubeDownloader():
 
 class PytubeDownloader(YouTubeDownloader):
     @staticmethod
-    def download(url=None, video=False):
+    def download(url=None, dest_dir=_TMP_DIR, video=False):
         if not url:
             logger.warning("Attempting to Download with no URL")
             return None
@@ -46,14 +46,14 @@ class PytubeDownloader(YouTubeDownloader):
         # For more specificity on video/audio would have to move inside the 'if'
         ys = streams.first()
         title = yt.title
-        path = ys.download(output_path=_TMP_DIR, filename=StrUtils.generateFilename('youtube'))
+        path = ys.download(output_path=dest_dir, filename=StrUtils.generateFilename('youtube'))
         length = yt.length
         return YouTubeVideo(title, path, length, video)
 
 
 class YoutubeDLDownloader(YouTubeDownloader):
     @staticmethod
-    def download(url=None, video=False):
+    def download(url=None, dest_dir=_TMP_DIR, video=False):
         ts = str(time.time_ns())
         ydl_opts = {
             'format': 'm4a/bestaudio/best',
@@ -61,24 +61,24 @@ class YoutubeDLDownloader(YouTubeDownloader):
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'm4a',
             }],
-            'outtmpl': {'default': _TMP_DIR + '%(id)s' + '_' + ts + '.%(ext)s'}
+            'outtmpl': {'default': dest_dir + '%(id)s' + '_' + ts + '.%(ext)s'}
         }
         with YoutubeDL(ydl_opts) as ydl:
             info = ydl.sanitize_info(ydl.extract_info(url, download=True))
             title = info.get('title')
-            path = _TMP_DIR + info.get('id') + '_' + ts + '.' + info.get('ext')
+            path = dest_dir + info.get('id') + '_' + ts + '.' + info.get('ext')
             length = info.get('duration')
         return YouTubeVideo(title, path, length, video)
 
 
 ALL_YT_DOWNLOADERS = [YoutubeDLDownloader, PytubeDownloader]
 
-async def download(url=None, video=False, downloaders_list=ALL_YT_DOWNLOADERS):
+async def download(url=None, dest_dir=_TMP_DIR, video=False, downloaders_list=ALL_YT_DOWNLOADERS):
     """ Attempt to download a video with each given downloader """
     for downloader in downloaders_list:
         try:
             logger.info(f'Attempting to download {url} with {downloader}')
-            return downloader.download(url, video)
+            return downloader.download(url, dest_dir, video)
         except Exception as e:
             logger.error(f'Failed to download with {downloader}')
             logger.error(e)
