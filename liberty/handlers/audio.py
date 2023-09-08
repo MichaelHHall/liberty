@@ -4,10 +4,11 @@ import shutil
 from pathlib import Path
 import logging
 import os
+import ffmpeg
 
 from utils.downloader import YouTubeVideo, download
-from utils.constants import _AUDIO_DIR, _DEEP_FRIED_FFMPEG_OPTIONS
-from utils.general import FSUtils
+from utils.constants import _TMP_DIR, _AUDIO_DIR, _DEEP_FRIED_FFMPEG_OPTIONS
+from utils.general import FSUtils, StrUtils
 
 logger = logging.getLogger('AudioHandler')
 
@@ -45,6 +46,11 @@ class AudioHandler:
         video = await download(url)
         logger.info(f'Successfully downloaded {url}')
         return await self.add_song(video.path, channel_id, manipulation, video.title, source='Downloaded Youtube Audio', added_by=added_by)
+
+
+    async def merge_and_add_song(self, songs=[], length=None, channel_id=None, manipulation=None, added_by=None):
+        path = await self.merge_audio(songs, length)
+        return await self.add_song(path, channel_id, manipulation, name=None, source='Merged Audio File', added_by=added_by)
 
 
     async def save_song(self, name, queue_position=None, bucket_handler=None):
@@ -173,6 +179,36 @@ class AudioHandler:
 
     def get_queue(self):
         return self.queue
+
+
+    async def merge_audio(self, sources=[], length=None):
+        logger.info(f'Merging audio sources: {sources}, length {length}')
+        with FSUtils.temp_directory() as dirname:
+            logger.info(f'Entering tmp directory {dirname}')
+            max_len = 0
+            source_paths = []
+            for source in sources:
+                # If source is a file, use that. If source is a URL, download it.
+                if StrUtils.isURL(source):
+                    video = await download(url=source, dest_dir=dirname)
+                    if video.length > max_len:
+                        max_len = video.length
+                    source_paths.append(video.path)
+                else:
+                    if os.path.exists(_AUDIO_DIR + source):
+                        duration = float(ffmpeg.probe(_AUDIO_DIR + source)["format"]["duration"])
+                        if duration > max_len:
+                            max_len = duration
+                        source_paths.append(_AUDIO_DIR + source)
+            if length is None:
+                length = max_len
+            ffmpeg_streams = []
+            for path in source_paths:
+                ffmpeg_streams.append(ffmpeg.input(path, stream_loop=-1, t=length))
+            output_path = _TMP_DIR + StrUtils.generateFilename('merged') + '.mp3'
+            ffmpeg.filter(ffmpeg_streams, 'amix', inputs=len(ffmpeg_streams)).output(output_path).run()
+        logger.info(f'Generated merged audio file at {output_path}')
+        return output_path
 
 
     class Song:
