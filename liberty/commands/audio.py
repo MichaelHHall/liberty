@@ -50,7 +50,7 @@ class Audio(commands.Cog):
 
 
     @commands.command(name='merge', help='Merges multiple audio sources and plays the result')
-    async def play_song(self, context, *args):
+    async def merge_streams(self, context, *args):
         sources = []
         length = None
         channel_id = None
