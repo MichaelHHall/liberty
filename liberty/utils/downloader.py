@@ -1,3 +1,4 @@
+import asyncio
 from pytube import YouTube
 from yt_dlp import YoutubeDL
 import json
@@ -78,7 +79,8 @@ async def download(url=None, dest_dir=_TMP_DIR, video=False, downloaders_list=AL
     for downloader in downloaders_list:
         try:
             logger.info(f'Attempting to download {url} with {downloader}')
-            return downloader.download(url, dest_dir, video)
+            loop = asyncio.get_running_loop()
+            return await loop.run_in_executor(None, lambda: downloader.download(url, dest_dir, video))
         except Exception as e:
             logger.error(f'Failed to download with {downloader}')
             logger.error(e)

@@ -1,3 +1,4 @@
+import asyncio
 import boto3
 from botocore.exceptions import ClientError
 from botocore.config import Config
@@ -34,7 +35,8 @@ class S3Utils():
     async def download_file(self, file_path, key_name):
         try:
             logger.info(f'Downloading {key_name} to {file_path}...')
-            self.b2.Bucket(_ASSETS_BUCKET_NAME).download_file(key_name, file_path)
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, lambda: self.b2.Bucket(_ASSETS_BUCKET_NAME).download_file(key_name, file_path))
         except ClientError as ce:
             logger.error(ce)
 
@@ -71,7 +73,8 @@ class S3Utils():
             return
         logger.info(f'Uploading {file_path} to {remote_path}...')
         try:
-            response = self.b2.Bucket(_ASSETS_BUCKET_NAME).upload_file(file_path, remote_path)
+            loop = asyncio.get_running_loop()
+            response = await loop.run_in_executor(None, lambda: self.b2.Bucket(_ASSETS_BUCKET_NAME).upload_file(file_path, remote_path))
         except ClientError as ce:
             logger.error(ce)
 
