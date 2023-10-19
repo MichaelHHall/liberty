@@ -206,7 +206,8 @@ class AudioHandler:
             for path in source_paths:
                 ffmpeg_streams.append(ffmpeg.input(path, stream_loop=-1, t=length))
             output_path = _TMP_DIR + StrUtils.generateFilename('merged') + '.mp3'
-            ffmpeg.filter(ffmpeg_streams, 'amix', inputs=len(ffmpeg_streams)).output(output_path).run()
+            loop = asyncio.get_running_loop()
+            await loop.run_in_executor(None, lambda: ffmpeg.filter(ffmpeg_streams, 'amix', inputs=len(ffmpeg_streams)).output(output_path).run())
         logger.info(f'Generated merged audio file at {output_path}')
         return output_path
 
