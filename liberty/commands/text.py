@@ -52,7 +52,8 @@ class Text(commands.Cog):
         targets = context.message.mentions
         if context.message.mention_everyone:
             targets.append('@everyone')
-        if not targets:
+
+        if not targets and not context.message.attachments:
             await context.send('Please designate a communist scoundrel to target!')
             return
 
@@ -67,3 +68,7 @@ class Text(commands.Cog):
                     elif target.mention in [member.mention for member in channel.members]:
                         await channel.send(target.mention)
                     await asyncio.sleep(0.5)
+            for attachment in context.message.attachments:
+                if channel.permissions_for(context.guild.me).send_messages:
+                    await channel.send(file=await attachment.to_file())
+                await asyncio.sleep(0.5)
