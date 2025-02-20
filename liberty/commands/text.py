@@ -72,7 +72,7 @@ class Text(commands.Cog):
                         await channel.send(target.mention)
                     await asyncio.sleep(0.5)
 
-    @commands.command(name='drg', help='bruh')
+    @commands.command(name='drg', help='Print a readout of the currently active missions in Deep Rock Galactic')
     async def drg(self, context):
         embeds = DRGUtils.array_mission_embeds()
         for biome, embeds in embeds.items():
