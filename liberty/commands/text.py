@@ -1,7 +1,11 @@
 import discord
 from discord.ext import commands
+import logging
 
 import asyncio
+from utils.drg import DRGUtils
+
+logger = logging.getLogger('TextCommands')
 
 # A file for defining basic info commands
 class Text(commands.Cog):
@@ -67,3 +71,11 @@ class Text(commands.Cog):
                     elif target.mention in [member.mention for member in channel.members]:
                         await channel.send(target.mention)
                     await asyncio.sleep(0.5)
+
+    @commands.command(name='drg', help='bruh')
+    async def drg(self, context):
+        embeds = DRGUtils.array_mission_embeds()
+        for biome, embeds in embeds.items():
+            for embed in embeds:
+                await context.send(embed=embed)
+                await asyncio.sleep(0.2)
