@@ -21,7 +21,16 @@ class DRGUtils():
 
     @staticmethod
     def create_mission_embed(biome, mission_icon):
-        embed = discord.Embed(title=biome, color=discord.Color.blue())
+        # This is a little cursed. Apparently discord will aggregate embeds sent in
+        # the same message as long as they have the same url set. This allows us to
+        # display 4 mission icons in one embed, greatly cleaning up the channel
+        # 2 main issues: one, it looks like garbage. Two, it only actually displays 4
+        # images max, even if there are more. You have to click in and scroll through
+        # to see the rest.
+        # Future solution: keep a count of how many we've made. The first embed gets a
+        # title (use the biome I guess), and then after 4 we choose a new url to aggregate
+        # separately? Very cursed.
+        embed = discord.Embed(url='https://doublexp.net', color=discord.Color.blue())
         embed.set_image(url=mission_icon)
         return embed
 

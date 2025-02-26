@@ -76,6 +76,4 @@ class Text(commands.Cog):
     async def drg(self, context):
         embeds = DRGUtils.array_mission_embeds()
         for biome, embeds in embeds.items():
-            for embed in embeds:
-                await context.send(embed=embed)
-                await asyncio.sleep(0.2)
+            await context.send(biome, embeds=embeds)
