@@ -1,5 +1,4 @@
 import asyncio
-from pytube import YouTube
 from yt_dlp import YoutubeDL
 import json
 import time
@@ -32,26 +31,6 @@ class YouTubeDownloader():
         raise NotImplementedError("No download method implemented for this class")
 
 
-class PytubeDownloader(YouTubeDownloader):
-    @staticmethod
-    def download(url=None, dest_dir=_TMP_DIR, video=False):
-        if not url:
-            logger.warning("Attempting to Download with no URL")
-            return None
-        yt = YouTube(url)
-        if not video:
-            streams = yt.streams.filter(only_audio=True)
-        else:
-            streams = yt.streams.filter(progressive=True)
-        # Could filter here to get preferred resolution/file type
-        # For more specificity on video/audio would have to move inside the 'if'
-        ys = streams.first()
-        title = yt.title
-        path = ys.download(output_path=dest_dir, filename=StrUtils.generateFilename('youtube'))
-        length = yt.length
-        return YouTubeVideo(title, path, length, video)
-
-
 class YoutubeDLDownloader(YouTubeDownloader):
     @staticmethod
     def download(url=None, dest_dir=_TMP_DIR, video=False):
@@ -72,7 +51,7 @@ class YoutubeDLDownloader(YouTubeDownloader):
         return YouTubeVideo(title, path, length, video)
 
 
-ALL_YT_DOWNLOADERS = [YoutubeDLDownloader, PytubeDownloader]
+ALL_YT_DOWNLOADERS = [YoutubeDLDownloader]
 
 async def download(url=None, dest_dir=_TMP_DIR, video=False, downloaders_list=ALL_YT_DOWNLOADERS):
     """ Attempt to download a video with each given downloader """
