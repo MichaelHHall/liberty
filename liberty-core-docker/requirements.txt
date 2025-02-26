@@ -6,3 +6,4 @@ PyNaCl==1.4.0
 pytube==15.0.0
 yt-dlp==2023.7.6
 validators==0.18.2
+requests==2.32.3
